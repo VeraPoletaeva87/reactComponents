@@ -1,24 +1,36 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
+import './search.css';
 
-class Search extends React.Component {
+class Search extends React.Component<{
+  searchString: string;
+  onSearch: (value: string) => void;
+}> {
   state = {
     searchString: '',
   };
 
-  onChange = (e: React.FormEvent<HTMLInputElement>): void => {
-    this.setState({ searchString: e.currentTarget.value });
+  componentDidMount() {
+    this.setState({ searchString: this.props.searchString });
+  }
+
+  onChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    this.setState({ searchString: e.target.value });
+  };
+
+  onClick = (): void => {
+    this.props.onSearch(this.state.searchString);
   };
 
   render() {
     return (
-      <div>
+      <div className="search-block">
         <input
           type="search"
           id="search"
           value={this.state.searchString}
           onChange={this.onChange}
         />
-        <button>Search</button>
+        <button onClick={this.onClick}>Search</button>
       </div>
     );
   }
