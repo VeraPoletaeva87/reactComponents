@@ -9,15 +9,19 @@ class Search extends React.Component<{
     searchString: '',
   };
 
-  componentDidMount() {
-    this.setState({ searchString: this.props.searchString });
-  }
-
-  onChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    this.setState({ searchString: e.target.value });
+  setSearch = (value: string) => {
+    this.setState({ searchString: value });
   };
 
-  onClick = (): void => {
+  componentDidMount() {
+    this.setSearch(this.props.searchString);
+  }
+
+  handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    this.setSearch(e.target.value);
+  };
+
+  hadleSearchClick = (): void => {
     this.props.onSearch(this.state.searchString);
   };
 
@@ -28,9 +32,9 @@ class Search extends React.Component<{
           type="search"
           id="search"
           value={this.state.searchString}
-          onChange={this.onChange}
+          onChange={this.handleInputChange}
         />
-        <button onClick={this.onClick}>Search</button>
+        <button onClick={this.hadleSearchClick}>Search</button>
       </div>
     );
   }
