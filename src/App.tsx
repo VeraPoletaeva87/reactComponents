@@ -1,34 +1,21 @@
-import React from 'react';
 import './App.css';
-import Search from './components/searchComponent/search';
-import Result from './components/resultComponent/result';
-import ErrorBoundary from './components/ErrorBoundary';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import Detail from './components/detailComponent/detail';
+import Home from './components/homeComponent/home';
+import ErrorPage from './components/errorPage/error';
 
-const searchKey = 'searchString';
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />}>
+          <Route path="/details/:id" element={<Detail />} />
+        </Route>
 
-class App extends React.Component {
-  state = {
-    searchString: localStorage.getItem(searchKey) ?? '',
-  };
-
-  handleSearch = (value: string): void => {
-    this.setState({ searchString: value });
-    localStorage.setItem(searchKey, value);
-  };
-
-  render() {
-    return (
-      <ErrorBoundary>
-        <div>
-          <Search
-            onSearch={this.handleSearch}
-            searchString={this.state.searchString}
-          />
-          <Result searchString={this.state.searchString} />
-        </div>
-      </ErrorBoundary>
-    );
-  }
+        <Route path="*" element={<ErrorPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
