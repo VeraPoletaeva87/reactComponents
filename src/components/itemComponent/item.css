@@ -12,6 +12,7 @@
 .item {
   margin-bottom: 12px;
   width: 300px;
+  padding-left: 4px;
   text-align: start;
   border: 1px #c3bfbf solid;
   border-radius: 8px;

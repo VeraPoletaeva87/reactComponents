@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Pagination from '../paginationComponent/pagination';
 import './result.css';
 import Item from '../itemComponent/item';
+import Loader from '../loader/loader';
 
 interface Item {
   uid: number;
@@ -75,7 +76,7 @@ function Result(props: ListProps) {
 
   return (
     <div>
-      {isLoading && <div id="loader"></div>}
+      {isLoading && <Loader />}
 
       {!isLoading && (
         <div>
