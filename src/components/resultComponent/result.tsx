@@ -19,10 +19,11 @@ function Result(props: ListProps) {
   const { searchString = '' } = props;
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  const [currentPage, setCurrentPage] = useState(1);
   const [pageLimit, setPageLimit] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  const urlBase = 'https://stapi.co/api/v2/rest/book/search';
 
   const navigate = useNavigate();
 
@@ -33,33 +34,22 @@ function Result(props: ListProps) {
   const handleItemsPerPageChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>): void => {
       setPageLimit(+e?.target.value);
-      setCurrentPage(1);
     },
     []
   );
 
-  const getPagesCount = () => {
-    fetch('https://stapi.co/api/v2/rest/book/search')
-      .then((response) => response.json())
-      .then((itemList) => {
-        setTotalPages(Math.ceil(itemList.books.length / pageLimit));
-      });
-  };
-
   const itemClickHandler = (id: number) => {
-    navigate(`/details/:${id}`, { state: { id } });
+    navigate(`/details/${id}`, { state: { id } });
   };
 
   const loadData = useCallback(
-    (searchString: string, currentPage: number, pageLimit: number) => {
+    (searchString: string, pageNumber: string, pageLimit: string) => {
       setIsLoading(true);
       const params = new URLSearchParams({ search: searchString });
       const paramsString = params.toString();
-      let Url = searchString
-        ? `https://stapi.co/api/v2/rest/book/search?${paramsString}`
-        : 'https://stapi.co/api/v2/rest/book/search';
-      Url = Url + `?pageNumber=${currentPage}&pageSize=${pageLimit}`;
-      fetch(Url)
+      let url = searchString ? `${urlBase}?${paramsString}` : urlBase;
+      url = url + `?pageNumber=${pageNumber}&pageSize=${pageLimit}`;
+      fetch(url)
         .then((response) => response.json())
         .then((itemList) => {
           setItems(itemList.books);
@@ -69,42 +59,50 @@ function Result(props: ListProps) {
     []
   );
 
+  // calculate the page number
   useEffect(() => {
-    getPagesCount();
-    loadData(searchString, currentPage, pageLimit);
+    fetch(urlBase)
+      .then((response) => response.json())
+      .then((itemList) => {
+        setTotalPages(Math.ceil(itemList.books.length / pageLimit));
+        setCurrentPage(1);
+      });
+  }, [pageLimit]);
+
+  // load items
+  useEffect(() => {
+    loadData(searchString, currentPage.toString(), pageLimit.toString());
   }, [loadData, searchString, currentPage, pageLimit]);
 
   return (
     <div>
-      {isLoading && <Loader />}
-
-      {!isLoading && (
-        <div>
-          <span className="margin">Items per page:</span>
-          <select value={pageLimit} onChange={handleItemsPerPageChange}>
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-          </select>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pageLimit={pageLimit}
-            onPageChange={handlePageChange}
-          />
-          <ul>
-            {items?.map((item: Item) => (
-              <Item
-                key={item.uid}
-                uid={item.uid}
-                title={item.title}
-                publishedYear={item.publishedYear}
-                clickHandler={itemClickHandler}
-              />
-            ))}
-          </ul>
-        </div>
+      <span className="margin">Items per page:</span>
+      <select value={pageLimit} onChange={handleItemsPerPageChange}>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageLimit={pageLimit}
+        onPageChange={handlePageChange}
+      />
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <ul>
+          {items?.map((item: Item) => (
+            <Item
+              key={item.uid}
+              uid={item.uid}
+              title={item.title}
+              publishedYear={item.publishedYear}
+              clickHandler={itemClickHandler}
+            />
+          ))}
+        </ul>
       )}
     </div>
   );

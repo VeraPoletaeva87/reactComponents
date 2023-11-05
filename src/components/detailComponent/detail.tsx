@@ -3,8 +3,16 @@ import { useCallback, useEffect, useState } from 'react';
 import Loader from '../loader/loader';
 import './detail.css';
 
+interface BookItem {
+  title: string;
+  publishedYear: string;
+  novel: boolean;
+  audiobook: boolean;
+  productionNumber: string;
+}
+
 function Detail() {
-  const [item, setItem] = useState();
+  const [item, setItem] = useState<BookItem>();
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
