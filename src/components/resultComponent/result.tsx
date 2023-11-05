@@ -1,60 +1,111 @@
-import React from 'react';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Pagination from '../paginationComponent/pagination';
 import './result.css';
+import Item from '../itemComponent/item';
+import Loader from '../loader/loader';
 
 interface Item {
-  episode_id: number;
+  uid: number;
   title: string;
-  opening_crawl: string;
+  publishedYear: string;
 }
 
-class Result extends React.Component<{ searchString: string }> {
-  state = {
-    items: [],
-    loaded: false,
+interface ListProps {
+  searchString: string;
+}
+
+function Result(props: ListProps) {
+  const { searchString = '' } = props;
+  const [items, setItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [pageLimit, setPageLimit] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const urlBase = 'https://stapi.co/api/v2/rest/book/search';
+
+  const navigate = useNavigate();
+
+  const handlePageChange = (page: number): void => {
+    setCurrentPage(page);
   };
 
-  loadData(): void {
-    const params = new URLSearchParams({ search: this.props.searchString });
-    const paramsString = params.toString();
-    const Url = this.props.searchString
-      ? `https://swapi.dev/api/films/?${paramsString}`
-      : 'https://swapi.dev/api/films/';
-    fetch(Url)
+  const handleItemsPerPageChange = useCallback(
+    (e: ChangeEvent<HTMLSelectElement>): void => {
+      setPageLimit(+e?.target.value);
+    },
+    []
+  );
+
+  const itemClickHandler = (id: number) => {
+    navigate(`/details/${id}`, { state: { id } });
+  };
+
+  const loadData = useCallback(
+    (searchString: string, pageNumber: string, pageLimit: string) => {
+      setIsLoading(true);
+      const params = new URLSearchParams({ search: searchString });
+      const paramsString = params.toString();
+      let url = searchString ? `${urlBase}?${paramsString}` : urlBase;
+      url = url + `?pageNumber=${pageNumber}&pageSize=${pageLimit}`;
+      fetch(url)
+        .then((response) => response.json())
+        .then((itemList) => {
+          setItems(itemList.books);
+          setIsLoading(false);
+        });
+    },
+    []
+  );
+
+  // calculate the page number
+  useEffect(() => {
+    fetch(urlBase)
       .then((response) => response.json())
       .then((itemList) => {
-        this.setState({ items: itemList.results });
-        this.setState({ loaded: true });
+        setTotalPages(Math.ceil(itemList.books.length / pageLimit));
+        setCurrentPage(1);
       });
-  }
+  }, [pageLimit]);
 
-  componentDidMount() {
-    this.loadData();
-  }
+  // load items
+  useEffect(() => {
+    loadData(searchString, currentPage.toString(), pageLimit.toString());
+  }, [loadData, searchString, currentPage, pageLimit]);
 
-  componentDidUpdate(prevProps: { searchString: string }) {
-    if (prevProps.searchString !== this.props.searchString) {
-      this.setState({ loaded: false });
-      this.loadData();
-    }
-  }
-
-  render() {
-    return (
-      <div>
-        {this.state.loaded === false && <div id="loader"></div>}
+  return (
+    <div>
+      <span className="margin">Items per page:</span>
+      <select value={pageLimit} onChange={handleItemsPerPageChange}>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageLimit={pageLimit}
+        onPageChange={handlePageChange}
+      />
+      {isLoading ? (
+        <Loader />
+      ) : (
         <ul>
-          {this.state.items?.map((item: Item) => (
-            <li className="item" key={item.episode_id}>
-              <div className="title">Title: {item.title}</div>
-              <div className="description">
-                Description: {item.opening_crawl}
-              </div>
-            </li>
+          {items?.map((item: Item) => (
+            <Item
+              key={item.uid}
+              uid={item.uid}
+              title={item.title}
+              publishedYear={item.publishedYear}
+              clickHandler={itemClickHandler}
+            />
           ))}
         </ul>
-      </div>
-    );
-  }
+      )}
+    </div>
+  );
 }
 
 export default Result;

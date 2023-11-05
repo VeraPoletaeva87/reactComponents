@@ -1,0 +1,16 @@
+.close {
+  background-color: rgb(127, 177, 235);
+}
+
+.detail-block {
+  display: flex;
+  flex-direction: column;
+  background-color: #c1d8e5;
+  border-radius: 6px;
+  box-shadow: 10px 10px 10px #77778d;
+  align-items: start;
+  padding: 30px;
+  height: 380px;
+  margin-left: 50px;
+  margin-top: 50px;
+}

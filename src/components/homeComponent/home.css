@@ -1,0 +1,8 @@
+.flex {
+  display: flex;
+}
+
+.main-panel {
+  background-color: #f1efef;
+  width: 500px;
+}
