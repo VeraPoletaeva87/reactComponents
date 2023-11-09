@@ -4,11 +4,9 @@ import Loader from '../loader/loader';
 import './detail.css';
 
 interface BookItem {
-  title: string;
-  publishedYear: string;
-  novel: boolean;
-  audiobook: boolean;
-  productionNumber: string;
+  name: string;
+  description: string;
+  tagline: string;
 }
 
 function Detail() {
@@ -23,12 +21,12 @@ function Detail() {
   const loadData = useCallback((id: number) => {
     setIsLoading(true);
     const uid = id.toString();
-    const Url = `https://stapi.co/api/v2/rest/book/?uid=${uid}`;
+    const Url = `https://api.punkapi.com/v2/beers/?ids=${uid}`;
 
     fetch(Url)
       .then((response) => response.json())
       .then((result) => {
-        setItem(result.book);
+        setItem(result[0]);
         setIsLoading(false);
       });
   }, []);
@@ -46,15 +44,14 @@ function Detail() {
       {isLoading && <Loader />}
       {!isLoading && (
         <div className="detail-block">
-          <h1>Book details:</h1>
-          <h2>Title: {item?.title}</h2>
-          <div className="description">Publish date: {item?.publishedYear}</div>
-          <div>Novel: {item?.novel ? 'yes' : 'no'}</div>
-          <div>Audiobook: {item?.audiobook ? 'yes' : 'no'}</div>
-          <div>
-            Production Number:{' '}
-            {item?.productionNumber ? item.productionNumber : '--'}
+          <h1>Beer details:</h1>
+          <h2>name: {item?.name}</h2>
+          <div className="bold">Description</div>
+          <div className="detail-description margin-left-small">
+            {item?.description}
           </div>
+          <div className="bold">Tagline</div>
+          <div className="margin-left-small">{item?.tagline}</div>
           <button className="close" onClick={closeHandler}>
             Close
           </button>

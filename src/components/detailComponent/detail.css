@@ -14,3 +14,21 @@
   margin-left: 50px;
   margin-top: 50px;
 }
+
+.margin-left-small {
+  margin-left: 12px;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.detail-description {
+  text-align: start;
+  width: 500px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
