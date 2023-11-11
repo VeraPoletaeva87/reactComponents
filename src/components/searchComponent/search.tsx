@@ -10,9 +10,7 @@ function Search(props: SearchProps) {
   const { searchString, setSearchString } =
     useContext<AppContextType>(AppContext);
 
-  useEffect(() => {
-    //setSearch(searchString);
-  }, [searchString]);
+  useEffect(() => {}, [searchString]);
 
   const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setSearchString(e.target.value);
@@ -26,11 +24,14 @@ function Search(props: SearchProps) {
     <div className="search-block">
       <input
         type="search"
+        data-testid="search-input"
         id="search"
         value={searchString}
         onChange={handleInputChange}
       />
-      <button onClick={hadleSearchClick}>Search</button>
+      <button data-testid="search-button" onClick={hadleSearchClick}>
+        Search
+      </button>
     </div>
   );
 }

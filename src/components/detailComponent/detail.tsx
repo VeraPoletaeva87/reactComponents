@@ -19,7 +19,7 @@ function Detail() {
   const { id } = state;
 
   const loadData = useCallback((id: number) => {
-    setIsLoading(true);
+    // setIsLoading(true);
     const uid = id.toString();
     const Url = `https://api.punkapi.com/v2/beers/?ids=${uid}`;
 
@@ -40,7 +40,7 @@ function Detail() {
   };
 
   return (
-    <>
+    <div data-testid="details-panel">
       {isLoading && <Loader />}
       {!isLoading && (
         <div className="detail-block">
@@ -52,12 +52,16 @@ function Detail() {
           </div>
           <div className="bold">Tagline</div>
           <div className="margin-left-small">{item?.tagline}</div>
-          <button className="close" onClick={closeHandler}>
+          <button
+            data-testid="detail-close-button"
+            className="close"
+            onClick={closeHandler}
+          >
             Close
           </button>
         </div>
       )}
-    </>
+    </div>
   );
 }
 

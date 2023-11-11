@@ -98,15 +98,19 @@ function Result() {
         <Loader />
       ) : (
         <ul>
-          {items?.map((item: Item) => (
-            <Item
-              key={item.id}
-              id={item.id}
-              name={item.name}
-              description={item.description}
-              clickHandler={itemClickHandler}
-            />
-          ))}
+          {items?.length ? (
+            items?.map((item: Item) => (
+              <Item
+                key={item.id}
+                id={item.id}
+                name={item.name}
+                description={item.description}
+                clickHandler={itemClickHandler}
+              />
+            ))
+          ) : (
+            <h2 data-testid="empty-text">No items</h2>
+          )}
         </ul>
       )}
     </div>

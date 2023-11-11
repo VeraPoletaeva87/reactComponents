@@ -14,7 +14,7 @@ interface Item {
 }
 
 function Home() {
-  const [searchString, setSearchString] = useState(''); // localStorage.getItem(searchKey) ?? ''
+  const [searchString, setSearchString] = useState('');
   const [items, setItems] = useState<Item[]>([]);
 
   const navigate = useNavigate();
@@ -31,6 +31,7 @@ function Home() {
   //надо ли тут передавать строку поиска
   return (
     <AppContext.Provider
+      data-testid="context-provider"
       value={{ searchString, setSearchString, items, setItems }}
     >
       <div className="flex">

@@ -15,13 +15,8 @@
     "isolatedModules": true,
     "noImplicitAny": true,
     "noEmit": true,
-    "jsx": "react-jsx",
-    "paths": {
-    "test/*": [
-      "./src/test/*"
-    ]
-  }
+    "jsx": "react-jsx"
   },
-  "include": ["src"],
+  "include": ["src", "/*.ts", "/.tsx", "./src/setupTests.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
