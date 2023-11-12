@@ -11,12 +11,7 @@ import './result.css';
 import Item from '../itemComponent/item';
 import Loader from '../loader/loader';
 import { AppContext, AppContextType } from '../../AppContext';
-
-interface Item {
-  id: number;
-  name: string;
-  description: string;
-}
+import { ListItem, listApi } from './result-api';
 
 function Result() {
   const { searchString, items, setItems } =
@@ -46,7 +41,7 @@ function Result() {
   };
 
   const loadData = useCallback(
-    (searchString: string, pageNumber: string, pageLimit: string) => {
+    async (searchString: string, pageNumber: string, pageLimit: string) => {
       setIsLoading(true);
       const params = new URLSearchParams({ beer_name: searchString });
       const paramsString = params.toString();
@@ -54,25 +49,23 @@ function Result() {
       url = searchString
         ? url + `&page=${pageNumber}&per_page=${pageLimit}`
         : url + `?page=${pageNumber}&per_page=${pageLimit}`;
-      fetch(url)
-        .then((response) => response.json())
-        .then((itemList) => {
-          setItems(itemList);
-          setIsLoading(false);
-        });
+      const result = await listApi(url);
+      setItems(result);
+      setIsLoading(false);
     },
     []
   );
 
+  const loadBase = useCallback(async () => {
+    const result = await listApi(urlBase);
+    setTotalPages(Math.ceil(result.length / pageLimit));
+    setCurrentPage(1);
+  }, [pageLimit]);
+
   // calculate the page number
   useEffect(() => {
-    fetch(urlBase)
-      .then((response) => response.json())
-      .then((itemList) => {
-        setTotalPages(Math.ceil(itemList.length / pageLimit));
-        setCurrentPage(1);
-      });
-  }, [pageLimit]);
+    loadBase();
+  }, [loadBase]);
 
   // load items
   useEffect(() => {
@@ -97,9 +90,9 @@ function Result() {
       {isLoading ? (
         <Loader />
       ) : (
-        <ul>
+        <ul data-testid="list">
           {items?.length ? (
-            items?.map((item: Item) => (
+            items?.map((item: ListItem) => (
               <Item
                 key={item.id}
                 id={item.id}

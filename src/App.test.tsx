@@ -10,8 +10,6 @@ describe('App', () => {
         <RoutesComponent />
       </MemoryRouter>
     );
-
-    //screen.debug();
     expect(screen.getByTestId('invalid-route')).toBeInTheDocument();
   });
 });

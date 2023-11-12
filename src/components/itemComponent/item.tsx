@@ -17,9 +17,18 @@ function Item(props: ItemProps) {
   };
 
   return (
-    <li className="item" key={id} onClick={liClickHandler}>
-      <div className="title">Title: {name}</div>
-      <div className="description">Publish date: {description}</div>
+    <li
+      data-testid="list-item"
+      className="item"
+      key={id}
+      onClick={liClickHandler}
+    >
+      <div className="title" data-testid="item-name">
+        Title: {name}
+      </div>
+      <div className="description" data-testid="item-description">
+        Publish date: {description}
+      </div>
     </li>
   );
 }
