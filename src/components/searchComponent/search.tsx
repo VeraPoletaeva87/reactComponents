@@ -1,43 +1,39 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useCallback, useContext, useEffect } from 'react';
 import './search.css';
+import { AppContext, AppContextType } from '../../AppContext';
 
-class Search extends React.Component<{
-  searchString: string;
+interface SearchProps {
   onSearch: (value: string) => void;
-}> {
-  state = {
-    searchString: '',
-  };
+}
 
-  setSearch = (value: string) => {
-    this.setState({ searchString: value });
-  };
+function Search(props: SearchProps) {
+  const { searchString, setSearchString } =
+    useContext<AppContextType>(AppContext);
 
-  componentDidMount() {
-    this.setSearch(this.props.searchString);
-  }
+  useEffect(() => {}, [searchString]);
 
-  handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    this.setSearch(e.target.value);
-  };
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setSearchString(e.target.value);
+  }, []);
 
-  hadleSearchClick = (): void => {
-    this.props.onSearch(this.state.searchString);
-  };
+  const hadleSearchClick = useCallback(() => {
+    props.onSearch(searchString);
+  }, [props, searchString]);
 
-  render() {
-    return (
-      <div className="search-block">
-        <input
-          type="search"
-          id="search"
-          value={this.state.searchString}
-          onChange={this.handleInputChange}
-        />
-        <button onClick={this.hadleSearchClick}>Search</button>
-      </div>
-    );
-  }
+  return (
+    <div className="search-block">
+      <input
+        type="search"
+        data-testid="search-input"
+        id="search"
+        value={searchString}
+        onChange={handleInputChange}
+      />
+      <button data-testid="search-button" onClick={hadleSearchClick}>
+        Search
+      </button>
+    </div>
+  );
 }
 
 export default Search;

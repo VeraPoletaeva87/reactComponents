@@ -12,18 +12,28 @@
     "preview": "vite preview",
     "prepare": "husky install",
     "pre-commit": "lint-staged",
-    "format:fix": "prettier --write \"**/*.{css,tsx}\""
+    "pre-push": "npm run test",
+    "format:fix": "prettier --write \"**/*.{css,tsx}\"",
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@jest/globals": "^29.7.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.18.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "6.1.4",
+    "@testing-library/react": "^14.1.0",
+    "@testing-library/user-event": "14.5.1",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.9.0",
     "@typescript-eslint/parser": "^6.9.0",
     "@vitejs/plugin-react": "^4.0.3",
+    "@vitest/coverage-v8": "^0.34.6",
+    "@vitest/ui": "0.34.6",
     "eslint": "^8.52.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-typescript": "^2.7.1",
@@ -33,10 +43,18 @@
     "eslint-plugin-react-refresh": "^0.4.3",
     "gh-pages": "^6.0.0",
     "husky": "^7.0.4",
+    "jest-fetch-mock": "^3.0.3",
     "lint-staged": "^12.4.1",
     "prettier": "^2.6.2",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5"
+    "vite": "^4.4.5",
+    "vitest": "^0.34.6",
+    "vitest-fetch-mock": "^0.2.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run pre-push"
+    }
   },
   "lint-staged": {
     "src/**/*.{css}": [
