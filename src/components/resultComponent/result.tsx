@@ -12,12 +12,17 @@ import Item from '../itemComponent/item';
 import Loader from '../loader/loader';
 import { AppContext, AppContextType } from '../../AppContext';
 import { ListItem, listApi } from './result-api';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { changPageLimit } from '../../features/pageLimitSlice';
 
 function Result() {
-  const { searchString, items, setItems } =
-    useContext<AppContextType>(AppContext);
+  const { items, setItems } = useContext<AppContextType>(AppContext);
+  const searchString = useSelector((state: RootState) => state.search.value);
+  const pageLimit = useSelector((state: RootState) => state.pageLimit.value);
+  const dispatch = useDispatch();
+
   const [isLoading, setIsLoading] = useState(false);
-  const [pageLimit, setPageLimit] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -31,7 +36,7 @@ function Result() {
 
   const handleItemsPerPageChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>): void => {
-      setPageLimit(+e?.target.value);
+      dispatch(changPageLimit(+e?.target.value));
     },
     []
   );
