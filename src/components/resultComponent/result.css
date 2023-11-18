@@ -1,0 +1,24 @@
+.page-limit-block {
+  height: 45px;
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  background: #f9f9f9;
+  border: 1px solid #c9c4c4;
+  border-radius: 12px;
+  padding-top: 12px;
+}
+
+.text {
+  font-size: 20px;
+}
+
+.select-field {
+  height: 28px;
+  width: 44px;
+  font-size: 18px;
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+}

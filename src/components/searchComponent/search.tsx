@@ -25,13 +25,18 @@ function Search(props: SearchProps) {
   return (
     <div className="search-block">
       <input
+        className="search-field"
         type="search"
         data-testid="search-input"
         id="search"
         value={searchString}
         onChange={handleInputChange}
       />
-      <button data-testid="search-button" onClick={hadleSearchClick}>
+      <button
+        className="search-button"
+        data-testid="search-button"
+        onClick={hadleSearchClick}
+      >
         Search
       </button>
     </div>

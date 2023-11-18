@@ -79,13 +79,19 @@ function Result() {
 
   return (
     <div>
-      <span className="margin">Items per page:</span>
-      <select value={pageLimit} onChange={handleItemsPerPageChange}>
-        <option value="5">5</option>
-        <option value="10">10</option>
-        <option value="20">20</option>
-        <option value="50">50</option>
-      </select>
+      <div className="page-limit-block">
+        <span className="text">Items per page:</span>
+        <select
+          className="margin select-field"
+          value={pageLimit}
+          onChange={handleItemsPerPageChange}
+        >
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
