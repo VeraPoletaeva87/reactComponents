@@ -1,43 +1,46 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useCallback, useEffect } from 'react';
 import './search.css';
+import type { RootState } from '../../store';
+import { useSelector, useDispatch } from 'react-redux';
+import { changSearch } from '../../features/searchSlice';
 
-class Search extends React.Component<{
-  searchString: string;
+interface SearchProps {
   onSearch: (value: string) => void;
-}> {
-  state = {
-    searchString: '',
-  };
+}
 
-  setSearch = (value: string) => {
-    this.setState({ searchString: value });
-  };
+function Search(props: SearchProps) {
+  const searchString = useSelector((state: RootState) => state.search.value);
+  const dispatch = useDispatch();
 
-  componentDidMount() {
-    this.setSearch(this.props.searchString);
-  }
+  useEffect(() => {}, [searchString]);
 
-  handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    this.setSearch(e.target.value);
-  };
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    dispatch(changSearch(e.target.value));
+  }, []);
 
-  hadleSearchClick = (): void => {
-    this.props.onSearch(this.state.searchString);
-  };
+  const hadleSearchClick = useCallback(() => {
+    props.onSearch(searchString);
+  }, [props, searchString]);
 
-  render() {
-    return (
-      <div className="search-block">
-        <input
-          type="search"
-          id="search"
-          value={this.state.searchString}
-          onChange={this.handleInputChange}
-        />
-        <button onClick={this.hadleSearchClick}>Search</button>
-      </div>
-    );
-  }
+  return (
+    <div className="search-block">
+      <input
+        className="search-field"
+        type="search"
+        data-testid="search-input"
+        id="search"
+        value={searchString}
+        onChange={handleInputChange}
+      />
+      <button
+        className="search-button"
+        data-testid="search-button"
+        onClick={hadleSearchClick}
+      >
+        Search
+      </button>
+    </div>
+  );
 }
 
 export default Search;

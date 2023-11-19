@@ -1,34 +1,18 @@
-import React from 'react';
 import './App.css';
-import Search from './components/searchComponent/search';
-import Result from './components/resultComponent/result';
+import { HashRouter } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
+import RoutesComponent from './components/routesComponent/roures';
 
-const searchKey = 'searchString';
-
-class App extends React.Component {
-  state = {
-    searchString: localStorage.getItem(searchKey) ?? '',
-  };
-
-  handleSearch = (value: string): void => {
-    this.setState({ searchString: value });
-    localStorage.setItem(searchKey, value);
-  };
-
-  render() {
-    return (
+function App() {
+  return (
+    <div data-testid="">
       <ErrorBoundary>
-        <div>
-          <Search
-            onSearch={this.handleSearch}
-            searchString={this.state.searchString}
-          />
-          <Result searchString={this.state.searchString} />
-        </div>
+        <HashRouter>
+          <RoutesComponent />
+        </HashRouter>
       </ErrorBoundary>
-    );
-  }
+    </div>
+  );
 }
 
 export default App;

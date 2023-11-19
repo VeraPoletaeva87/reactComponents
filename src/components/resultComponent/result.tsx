@@ -1,60 +1,113 @@
-import React from 'react';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Pagination from '../paginationComponent/pagination';
 import './result.css';
+import Item from '../itemComponent/item';
+import Loader from '../loader/loader';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import { changPageLimit } from '../../features/pageLimitSlice';
+import { changeListLoaded } from '../../features/listLoadedSlice';
+import { ListItem, useGetBeersQuery } from '../../features/apiSlice';
 
-interface Item {
-  episode_id: number;
-  title: string;
-  opening_crawl: string;
-}
+function Result() {
+  const searchString = useSelector((state: RootState) => state.search.value);
+  const pageLimit = useSelector((state: RootState) => state.pageLimit.value);
 
-class Result extends React.Component<{ searchString: string }> {
-  state = {
-    items: [],
-    loaded: false,
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const urlBase = 'https://api.punkapi.com/v2/beers';
+  const params = new URLSearchParams({ beer_name: searchString });
+  const paramsString = params.toString();
+  let url = searchString ? `${urlBase}?${paramsString}` : urlBase;
+  url = searchString
+    ? url + `&page=${currentPage}&per_page=${pageLimit}`
+    : url + `?page=${currentPage}&per_page=${pageLimit}`;
+
+  const { data, isLoading } = useGetBeersQuery({ url, limit: pageLimit });
+
+  const handlePageChange = (page: number): void => {
+    setCurrentPage(page);
   };
 
-  loadData(): void {
-    const params = new URLSearchParams({ search: this.props.searchString });
-    const paramsString = params.toString();
-    const Url = this.props.searchString
-      ? `https://swapi.dev/api/films/?${paramsString}`
-      : 'https://swapi.dev/api/films/';
-    fetch(Url)
-      .then((response) => response.json())
-      .then((itemList) => {
-        this.setState({ items: itemList.results });
-        this.setState({ loaded: true });
-      });
-  }
+  const handleItemsPerPageChange = useCallback(
+    (e: ChangeEvent<HTMLSelectElement>): void => {
+      dispatch(changPageLimit(+e?.target.value));
+    },
+    []
+  );
 
-  componentDidMount() {
-    this.loadData();
-  }
+  const itemClickHandler = (id: number) => {
+    navigate(`/details/${id}`, { state: { id } });
+  };
 
-  componentDidUpdate(prevProps: { searchString: string }) {
-    if (prevProps.searchString !== this.props.searchString) {
-      this.setState({ loaded: false });
-      this.loadData();
-    }
-  }
+  useEffect(() => {
+    dispatch(changeListLoaded(isLoading));
+  }, [dispatch, isLoading]);
 
-  render() {
-    return (
-      <div>
-        {this.state.loaded === false && <div id="loader"></div>}
-        <ul>
-          {this.state.items?.map((item: Item) => (
-            <li className="item" key={item.episode_id}>
-              <div className="title">Title: {item.title}</div>
-              <div className="description">
-                Description: {item.opening_crawl}
-              </div>
-            </li>
-          ))}
-        </ul>
+  const listApi = async (url: string): Promise<ListItem[]> => {
+    const response = await fetch(url);
+    const items = await response.json();
+    return items as ListItem[];
+  };
+
+  const loadBase = useCallback(async () => {
+    const result = await listApi(urlBase);
+    setTotalPages(Math.ceil(result.length / pageLimit));
+    setCurrentPage(1);
+  }, [pageLimit]);
+
+  // calculate the page number
+  useEffect(() => {
+    loadBase();
+  }, [loadBase]);
+
+  return (
+    <div>
+      <div className="page-limit-block">
+        <span className="text">Items per page:</span>
+        <select
+          className="margin select-field"
+          value={pageLimit}
+          onChange={handleItemsPerPageChange}
+        >
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
       </div>
-    );
-  }
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageLimit={pageLimit}
+        onPageChange={handlePageChange}
+      />
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <ul data-testid="list">
+          {data?.length ? (
+            data?.map((item: ListItem) => (
+              <Item
+                key={item.id}
+                id={item.id}
+                name={item.name}
+                description={item.description}
+                clickHandler={itemClickHandler}
+              />
+            ))
+          ) : (
+            <h2 data-testid="empty-text">No items</h2>
+          )}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 export default Result;
