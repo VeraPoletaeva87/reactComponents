@@ -1,37 +1,24 @@
 import Result from './result';
-import { expect, describe, it, test, vi, beforeEach, Mock } from 'vitest';
+import {
+  expect,
+  describe,
+  it,
+  test,
+  vi,
+  beforeEach,
+  Mock,
+  afterAll,
+  afterEach,
+  beforeAll,
+} from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, useNavigate } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
-import { listApi } from './result-api';
 import { useContext } from 'react';
-import { AppContext } from '../../AppContext';
-
-vi.mock('react-router-dom', async () => {
-  const routerDom = await vi.importActual<typeof import('react-router-dom')>(
-    'react-router-dom'
-  );
-  return {
-    ...routerDom,
-    useNavigate: vi.fn(),
-  };
-});
-
-vi.mock('react', async () => {
-  const react = await vi.importActual<typeof import('react')>('react');
-  return {
-    ...react,
-    useContext: vi.fn(),
-  };
-});
-
-const navigate = vi.fn();
-
-vi.mock('./result-api', async () => {
-  return {
-    listApi: vi.fn(),
-  };
-});
+import { HttpResponse, delay, http } from 'msw';
+import { setupServer } from 'msw/node';
+import { Provider } from 'react-redux';
+import { store } from '../../store';
 
 const mockData = [
   {
@@ -61,13 +48,45 @@ const mockData = [
   },
 ];
 
+const handlers = [
+  http.get('https://api.punkapi.com/v2/beers/details/1', async () => {
+    await delay(150);
+    return HttpResponse.json(mockData);
+  }),
+];
+
+let server = setupServer(...handlers);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
+vi.mock('react-router-dom', async () => {
+  const routerDom = await vi.importActual<typeof import('react-router-dom')>(
+    'react-router-dom'
+  );
+  return {
+    ...routerDom,
+    useNavigate: vi.fn(),
+  };
+});
+
+vi.mock('react', async () => {
+  const react = await vi.importActual<typeof import('react')>('react');
+  return {
+    ...react,
+    useContext: vi.fn(),
+  };
+});
+
+const navigate = vi.fn();
+
 beforeEach(() => {
   (useNavigate as Mock).mockReturnValue(navigate);
 });
 
 describe('Result', () => {
   it('renders the correct number of items in the list', async () => {
-    (listApi as Mock).mockReturnValue(Promise.resolve(mockData));
     const contextValue = {
       searchString: '',
       setSearchString: vi.fn(),
@@ -77,25 +96,52 @@ describe('Result', () => {
 
     (useContext as Mock).mockReturnValue(contextValue);
 
-    render(
-      <MemoryRouter initialEntries={['/main']}>
-        <AppContext.Provider value={contextValue}>
-          <Result />
-        </AppContext.Provider>
-      </MemoryRouter>
-    );
+    async () => {
+      const handlers = [
+        http.get('https://api.punkapi.com/v2/beers/', async () => {
+          await delay(150);
+          return HttpResponse.json([mockData]);
+        }),
+      ];
 
-    const expectedItemsCount = 5;
-    await waitFor(() => expect(screen.getByTestId('list')).toBeInTheDocument());
-    const listItems = screen.getByTestId('list').children;
-    expect(listItems.length).toEqual(expectedItemsCount);
+      server = setupServer(...handlers);
+      server.resetHandlers();
+
+      render(
+        <MemoryRouter initialEntries={['/main']}>
+          <Provider store={store}>
+            <Result />
+          </Provider>
+        </MemoryRouter>
+      );
+
+      const expectedItemsCount = 5;
+      await waitFor(() =>
+        expect(screen.getByTestId('list')).toBeInTheDocument()
+      );
+      const listItems = screen.getByTestId('list').children;
+      expect(listItems.length).toEqual(expectedItemsCount);
+    };
   });
 
   test('the correct message is displayed if no cards are present'),
     async () => {
-      (listApi as Mock).mockReturnValue(Promise.resolve([]));
+      const handlers = [
+        http.get('https://api.punkapi.com/v2/beers/', async () => {
+          await delay(150);
+          return HttpResponse.json([]);
+        }),
+      ];
 
-      render(<Result />);
+      server = setupServer(...handlers);
+      server.resetHandlers();
+
+      render(
+        <Provider store={store}>
+          <Result />
+        </Provider>
+      );
+
       await waitFor(() =>
         expect(screen.getByTestId('empty-text')).toBeInTheDocument()
       );
@@ -103,10 +149,11 @@ describe('Result', () => {
     };
 
   it('clicking on a card opens a detailed card component', async () => {
-    (listApi as Mock).mockReturnValue(Promise.resolve(mockData));
-
-    render(<Result />);
-
+    render(
+      <Provider store={store}>
+        <Result />
+      </Provider>
+    );
     await waitFor(() => expect(screen.getByTestId('list')).toBeInTheDocument());
     const item = screen.getByTestId('list').children[0];
     await userEvent.click(item);
@@ -114,15 +161,32 @@ describe('Result', () => {
   });
 
   it('card component renders the relevant card data', async () => {
-    (listApi as Mock).mockReturnValue(Promise.resolve(mockData));
+    async () => {
+      const handlers = [
+        http.get('https://api.punkapi.com/v2/beers/', async () => {
+          await delay(150);
+          return HttpResponse.json([mockData]);
+        }),
+      ];
 
-    render(<Result />);
-    await waitFor(() => expect(screen.getByTestId('list')).toBeInTheDocument());
-    const description = screen.getAllByTestId('item-description')[0];
-    const name = screen.getAllByTestId('item-name')[0];
-    expect((description as HTMLElement).textContent).toEqual(
-      'Publish date: description1'
-    );
-    expect((name as HTMLElement).textContent).toEqual('Title: name1');
+      server = setupServer(...handlers);
+      server.resetHandlers();
+
+      render(
+        <Provider store={store}>
+          <Result />
+        </Provider>
+      );
+
+      await waitFor(() =>
+        expect(screen.getByTestId('list')).toBeInTheDocument()
+      );
+      const description = screen.getAllByTestId('item-description')[0];
+      const name = screen.getAllByTestId('item-name')[0];
+      expect((description as HTMLElement).textContent).toEqual(
+        'Publish date: description1'
+      );
+      expect((name as HTMLElement).textContent).toEqual('Title: name1');
+    };
   });
 });

@@ -1,28 +1,24 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { changeDetailLoaded } from '../../features/detailLoadedSlice';
 import Loader from '../loader/loader';
 import './detail.css';
-import { BookItem, beerApi } from './detail-api';
+import { useGetBeerByIdQuery } from '../../features/apiSlice';
 
 function Detail() {
-  const [item, setItem] = useState<BookItem>();
-  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
 
   const navigate = useNavigate();
   const { state } = useLocation();
 
   const { id } = state;
-
-  const loadData = useCallback(async (id: number) => {
-    setIsLoading(true);
-    const result = await beerApi(id);
-    setItem(result);
-    setIsLoading(false);
-  }, []);
+  const { data, isLoading } = useGetBeerByIdQuery(id);
+  const item = data ? data[0] : null;
 
   useEffect(() => {
-    loadData(id);
-  }, [id, loadData]);
+    dispatch(changeDetailLoaded(isLoading));
+  }, [dispatch, isLoading]);
 
   const closeHandler = () => {
     navigate(`/`);
