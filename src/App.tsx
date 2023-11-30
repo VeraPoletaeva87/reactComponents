@@ -1,21 +1,22 @@
 import React from 'react';
 import './App.css';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import Uncontrolled from './forms/uncontrolled/form';
+import ErrorPage from './components/errorPage';
+import Home from './components/home';
+import Controlled from './forms/controlled/form';
 
-const searchKey = 'searchString';
-
-class App extends React.Component {
-  state = {
-    searchString: localStorage.getItem(searchKey) ?? '',
-  };
-
-  handleSearch = (value: string): void => {
-    this.setState({ searchString: value });
-    localStorage.setItem(searchKey, value);
-  };
-
-  render() {
-    return <div>test</div>;
-  }
+function App() {
+  return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />}/>
+          <Route path="/uncontrolled" element={<Uncontrolled />} />
+          <Route path="/controlled" element={<Controlled />} />
+          <Route path="*" element={<ErrorPage />} />
+        </Routes>
+      </BrowserRouter>
+  );
 }
 
 export default App;
