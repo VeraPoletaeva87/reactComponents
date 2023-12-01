@@ -1,0 +1,46 @@
+.red {
+    color: red;
+}
+
+.flex {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.back-button {
+    position: relative;
+    right: 231px;
+    bottom: 55px;
+}
+
+.form {
+    width: 400px;
+    background: #d9e2f1;
+    border-radius: 10px;
+    margin: 12px;
+    padding: 16px;
+    box-shadow: 10px 10px 10px #77778d;
+}
+
+.input-block {
+    height: 56px;
+}
+
+.input {
+    width: 80%;
+}
+
+.label {
+    width: 160px;
+}
+
+.flex-row {
+    display: flex;
+    align-items: baseline;
+}
+
+.margin {
+    margin-top: 12px;
+    margin-bottom: 12px;
+}

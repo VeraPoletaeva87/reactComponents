@@ -1,0 +1,30 @@
+.border-red {
+    border: 3px solid red;
+    width: 306px;
+}
+
+.form-block-margin {
+    margin: 30px;
+}
+
+.button-block {
+    padding: 30px;
+    background: #bac4df;
+}
+
+.show-form {
+    margin-right: 12px;
+    height: 30px;
+    background: #c8ddeb;
+    border: none;
+    border-radius: 6px;
+}
+
+.show-form:hover {
+    cursor: pointer;
+    background: #88a5b8;
+}
+
+.list-margin {
+    margin-left: 30px;
+}
