@@ -1,10 +1,10 @@
 import { ChangeEvent, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AutoComplete from '../../components/autoComplete/autocomplete';
-import * as yup from "yup";
 import './form.css';
 import { useDispatch } from "react-redux";
 import { saveForm } from "../../features/formDataSlice";
+import { convertFileToBase64, schema } from "../helpers";
 
 interface ErrorMessage {
   name: string,
@@ -15,40 +15,42 @@ interface ErrorMessage {
 }
 
 export default function Uncontrolled() {
-  const selectRef = useRef();
+  const selectRef = useRef<HTMLSelectElement>(null);
   const checkboxRef = useRef();
-  const nameRef = useRef();
-  const emailRef =useRef();
-  const confirmRef = useRef();
-  const passwordRef = useRef();
-  const ageRef = useRef();
-  const countryRef = useRef();
-  const imageRef = useRef();
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef =useRef<HTMLInputElement>(null);
+  const confirmRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const ageRef = useRef<HTMLInputElement>(null);
+  const countryRef = useRef<HTMLInputElement>(null);
+  const imageRef = useRef<HTMLInputElement>(null);
 
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
   const [errorMessages, setErrorMessages] = useState<ErrorMessage>();
   const [country, setCountry] = useState('');
-
-
-  const schema = yup.object().shape({
-    name: yup.string().matches(/^[A-Z]/, "Username should start with uppercase letter"),
-    email: yup.string().email(),
-    age: yup.number().positive(),
-    password: yup.string()
-    .matches(/\d/, "Password should contain at least one number")
-    .matches(/(?=.*[a-z])(?=.*[A-Z])\w+/, "Password ahould contain at least one uppercase and lowercase character")
-    .matches(/[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/, "Password should contain at least one special character"),
-    confirm: yup.string().when("password", (password, field) => {
-      if (password) {
-        return field.required("The passwords do not match").oneOf([yup.ref("password")], "The passwords do not match");
-      }
-    })
-  });
+  const [imageBase64, setImageBase64] = useState('');
+  const [imageError, setImageError] = useState('');
 
   const backClickHandler = () => {
     navigate(`/`);
+  };
+
+  const imageUploadHandler = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files) {
+      return;
+  } else {
+    const file = event.target.files[0];
+    const fileSize = file.size / 1024 / 1024; // in MiB
+    if (fileSize > 2) {
+      setImageError('File size exceeds 2 MiB');
+    } else {
+      setImageError('');
+      const uploadedImageBase64 = await convertFileToBase64(file);
+      setImageBase64(uploadedImageBase64);
+    }
+  }
   };
 
   const autoCompleteSelectHandler = (value: string) => {
@@ -70,7 +72,7 @@ export default function Uncontrolled() {
       confirm: confirmRef?.current?.value,
       gender: selectRef?.current?.value,
       accept: checkboxRef?.current?.value,
-      image: imageRef?.current?.value,
+      image: imageBase64,
       country: countryRef?.current?.value
     };
     const error = {};
@@ -81,10 +83,9 @@ export default function Uncontrolled() {
        error[e.path] = e.message;
       });
       setErrorMessages(error);
-      
     }
   
-     if (Object.keys(error).length > 0 && error.constructor === Object) {
+     if (Object.keys(error).length > 0 && error.constructor === Object || imageError) {
       return;
     } else {
       dispatch(saveForm(formData));
@@ -143,15 +144,18 @@ export default function Uncontrolled() {
         <label htmlFor="accept">Accept T&C: </label>
         <input type="checkbox" id="accept" ref={checkboxRef} />
       </div>
+      <div className="input-block">
       <div className="margin flex-row">
         <label htmlFor="image" className="label">Upload image: </label>
-        <input type="file" id="image" ref={imageRef} accept="image/png, image/jpeg" />
+        <input type="file" id="image" ref={imageRef} accept="image/png, image/jpeg" onChange={imageUploadHandler}/>
+      </div>
+      <div className="red">{imageError}</div>
       </div>
       <div className="input-block">
         <div className="flex-row">
           <label htmlFor="country"  className="label">Country: </label>
-          <div>
-            <input className="input" id="country" ref={countryRef} type="text" onChange={countryChangeHandler}/>
+          <div className="input">
+            <input id="country" ref={countryRef} type="text" onChange={countryChangeHandler}/>
             <AutoComplete userInput={country} clickHandler={autoCompleteSelectHandler}/>
           </div>
         </div>

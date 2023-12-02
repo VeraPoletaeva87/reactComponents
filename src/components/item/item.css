@@ -17,3 +17,8 @@
     border: 1px #c3bfbf solid;
     border-radius: 8px;
   }
+
+  .form-image {
+    width: 300px;
+    height: 300px;
+  }

@@ -1,12 +1,12 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import './autocomplete.css';
+import { RootState } from "../../../store";
+import { useSelector } from "react-redux";
 
 interface AutoCompleteProps {
     userInput: string,
     clickHandler: (id: string) => void;
 }
-
-const countryList = ['Albania', 'Belarus', 'Bangladesh', 'Canada', 'Denmark'];
 
 export default function AutoComplete(props: AutoCompleteProps) {
   const [suggestions, setSuggestions] = useState([]);
@@ -14,6 +14,7 @@ export default function AutoComplete(props: AutoCompleteProps) {
   const  [visible, setVisible] = useState(false);
 
   const { userInput, clickHandler } = props;
+  const countryList = useSelector((state: RootState) => state.countries.value);
 
   const itemClickHandler = (event: ChangeEvent<HTMLDivElement>) => {
     clickHandler(event.target.innerText);
