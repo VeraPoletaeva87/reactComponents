@@ -42,7 +42,8 @@ function Home() {
         <button className='show-form' onClick={controlledClick}>+ Controlled form</button>
       </div>
       <div>
-        <h3>Submitted form data</h3>
+        <h3 className='list-margin'>Submitted form data</h3>
+        <div className='flex-row'>
         {items?.map((item: FormData, i: number) => (
           <div className={i === length-1 ? 'border-red list-margin' : 'list-margin'} key={item.name}>
             <Item
@@ -58,6 +59,8 @@ function Home() {
             />
           </div>
         ))}
+        </div>
+
       </div>
     </>
   );
