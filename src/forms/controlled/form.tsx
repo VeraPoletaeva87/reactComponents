@@ -26,7 +26,7 @@ export default function Controlled() {
     setValue,
     handleSubmit,
     formState: { errors }
-  } = useForm<Inputs>({resolver: yupResolver(schema)})
+  } = useForm<Inputs>({mode: 'all', resolver: yupResolver(schema)})
 
   const [country, setCountry] = useState('');
   const [imageError, setImageError] = useState('');

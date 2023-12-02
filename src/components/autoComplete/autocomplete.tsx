@@ -25,17 +25,18 @@ export default function AutoComplete(props: AutoCompleteProps) {
   useEffect(() => {
     if (userInput) {
         const filteredSuggestions = countryList.filter(
-            suggestion =>
-              suggestion.toLowerCase().indexOf(search.toLowerCase()) > -1
+            (suggestion: string) =>
+              suggestion.toLowerCase().indexOf(userInput.toLowerCase()) > -1
           );
   setSuggestions(filteredSuggestions);  
   setVisible(true); 
+  setSearch(userInput);
     }
   }, [userInput]);
 
-  useEffect(() => {
-    setSearch(userInput);
-  }, [userInput]);
+  // useEffect(() => {
+  //   setSearch(userInput);
+  // }, [userInput]);
 
   return (
     <div>
