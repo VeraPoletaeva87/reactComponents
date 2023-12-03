@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import './autocomplete.css';
 import { RootState } from "../../../store";
 import { useSelector } from "react-redux";
@@ -9,15 +9,15 @@ interface AutoCompleteProps {
 }
 
 export default function AutoComplete(props: AutoCompleteProps) {
-  const [suggestions, setSuggestions] = useState([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const  [visible, setVisible] = useState(false);
 
   const { userInput, clickHandler } = props;
   const countryList = useSelector((state: RootState) => state.countries.value);
 
-  const itemClickHandler = (event: ChangeEvent<HTMLDivElement>) => {
-    clickHandler(event.target.innerText);
+  const itemClickHandler = (suggestion: string) => {
+    clickHandler(suggestion);
     setVisible(false);
   };
 
@@ -32,11 +32,7 @@ export default function AutoComplete(props: AutoCompleteProps) {
   setVisible(true); 
   setSearch(userInput);
     }
-  }, [userInput]);
-
-  // useEffect(() => {
-  //   setSearch(userInput);
-  // }, [userInput]);
+  }, [userInput, countryList]);
 
   return (
     <div>
@@ -44,7 +40,7 @@ export default function AutoComplete(props: AutoCompleteProps) {
         suggestions.length ? (
             <div className="list-block">
                 {suggestions?.map((suggestion) => (
-                    <div className="item" key={suggestion} onClick={itemClickHandler}>
+                    <div className="item" key={suggestion} onClick={() => itemClickHandler(suggestion)}>
                         {suggestion}
                     </div>
                 ))}

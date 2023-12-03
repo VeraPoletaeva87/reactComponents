@@ -1,11 +1,8 @@
 import './item.css';
 import { FormData } from '../../features/formDataSlice';
-import { useEffect } from 'react';
 
 function Item(props: FormData) {
   const { name, age,  email, gender, accept, image, country } = props;
-
-  useEffect(() => console.log(image), [image]);
 
   return (
     <div className="list-item">

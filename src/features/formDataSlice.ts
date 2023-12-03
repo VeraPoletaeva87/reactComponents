@@ -1,9 +1,9 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { CaseReducer, SliceCaseReducers, createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 export interface FormData {
     name: string,
-    age: string,
+    age: number,
     email: string,
     password: string,
     confirm: string,
@@ -17,12 +17,16 @@ export interface FormDataState {
    value: FormData[];
 }
 
-export const formDataSlice = createSlice({
+export interface FormDataReducer extends SliceCaseReducers<FormDataState> {
+  saveForm: CaseReducer<FormDataState, PayloadAction<FormData>>;
+}
+
+export const formDataSlice = createSlice<FormDataState, FormDataReducer>({
   name: 'formData',
   initialState: { value: [] },
   reducers: {
-    saveForm: (state, action: PayloadAction<FormData>) => {
-       return { ...state, value: [...state.value, action.payload]}
+    saveForm: (state, { payload }) => {
+      state.value = [...state.value, payload ];
     },
   },
 });

@@ -1,16 +1,20 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { CaseReducer, SliceCaseReducers, createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 export interface CountryState {
    value: string[];
 }
 
-export const countrySlice = createSlice({
+export interface CountryReducer extends SliceCaseReducers<CountryState> {
+  saveCountries: CaseReducer<CountryState, PayloadAction<string[]>>;
+}
+
+export const countrySlice = createSlice<CountryState, CountryReducer>({
   name: 'countries',
   initialState: { value: [] },
   reducers: {
-    saveCountries: (state, action: PayloadAction<string[]>) => {
-       return { ...state, value: [...action.payload] }
+    saveCountries: (state, { payload }) => {
+      state.value = payload;
     },
   },
 });

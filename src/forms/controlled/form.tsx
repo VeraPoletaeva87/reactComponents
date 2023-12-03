@@ -2,23 +2,11 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import '../uncontrolled/form.css';
 import AutoComplete from "../../components/autoComplete/autocomplete";
 import { ChangeEvent, useState } from "react";
-import { convertFileToBase64, schema } from "../helpers";
+import { convertFileToBase64, schema, InputSchema } from "../helpers";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { saveForm } from "../../features/formDataSlice";
-
-type Inputs = {
-  name: string,
-  age: number,
-  email: string,
-  password: string,
-  confirm: string,
-  gender: string,
-  accept: string,
-  image: string,
-  country: string
-}
+import { saveForm, FormData } from "../../features/formDataSlice";
 
 export default function Controlled() {
   const {
@@ -26,7 +14,7 @@ export default function Controlled() {
     setValue,
     handleSubmit,
     formState: { errors }
-  } = useForm<Inputs>({mode: 'all', resolver: yupResolver(schema)})
+  } = useForm<InputSchema>({ mode: 'all', resolver: yupResolver<InputSchema>(schema) })
 
   const [country, setCountry] = useState('');
   const [imageError, setImageError] = useState('');
@@ -59,19 +47,19 @@ export default function Controlled() {
     setCountry(event.target.value);
   }
 
-  const onSubmit: SubmitHandler<Inputs> = (data, e) => {
-    e.preventDefault();
+  const onSubmit: SubmitHandler<InputSchema> = (data, e) => {
+    e?.preventDefault();
   
-    const formData = {
-      name: data.name,
-      age: data.age,
-      email: data.email,
-      password: data.password,
-      confirm: data.confirm,
-      gender: data.gender,
-      accept: data.accept.toString(),
+    const formData: FormData = {
+      name: data.name ?? '',
+      age: data.age ?? 0,
+      email: data.email ?? '',
+      password: data.password ?? '',
+      confirm: data.confirm ?? '',
+      gender: data.gender ?? '',
+      accept: (data.accept ?? false).toString(),
       image: imageBase64,
-      country: data.country
+      country: data.country ?? ''
     };
 
      if (Object.keys(errors).length > 0 || imageError) {
@@ -95,7 +83,7 @@ export default function Controlled() {
       <div className="input-block">
         <div className="flex-row">
           <label className="label">Age</label>
-          <input {...register("age")} className="input"/>
+          <input {...register("age")} className="input" type="number" />
         </div>
         <p className="red">{errors.age?.message}</p>
       </div>

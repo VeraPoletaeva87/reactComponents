@@ -3,20 +3,21 @@ import { useNavigate } from "react-router-dom";
 import AutoComplete from '../../components/autoComplete/autocomplete';
 import './form.css';
 import { useDispatch } from "react-redux";
-import { saveForm } from "../../features/formDataSlice";
+import { saveForm, FormData } from "../../features/formDataSlice";
 import { convertFileToBase64, schema } from "../helpers";
+import { ValidationError } from "yup";
 
 interface ErrorMessage {
-  name: string,
-  age: string,
-  email: string,
-  password: string,
-  confirm: string
+  name?: string,
+  age?: string,
+  email?: string,
+  password?: string,
+  confirm?: string
 }
 
 export default function Uncontrolled() {
   const selectRef = useRef<HTMLSelectElement>(null);
-  const checkboxRef = useRef();
+  const checkboxRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef =useRef<HTMLInputElement>(null);
   const confirmRef = useRef<HTMLInputElement>(null);
@@ -54,7 +55,7 @@ export default function Uncontrolled() {
   };
 
   const autoCompleteSelectHandler = (value: string) => {
-    countryRef.current.value = value;
+    countryRef.current!.value = value;
   };
 
   const countryChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
@@ -64,23 +65,25 @@ export default function Uncontrolled() {
   const handleSubmit = async (event: React.MouseEvent) => {
     event.preventDefault();
   
-    const formData = {
-      name: nameRef?.current?.value,
-      age: ageRef?.current?.value,
-      email: emailRef?.current?.value,
-      password: passwordRef?.current?.value,
-      confirm: confirmRef?.current?.value,
-      gender: selectRef?.current?.value,
-      accept: checkboxRef?.current?.value,
+    const formData: FormData = {
+      name: nameRef?.current?.value ?? '',
+      age: (ageRef?.current?.value as unknown as number) ?? 0,
+      email: emailRef?.current?.value ?? '',
+      password: passwordRef?.current?.value ?? '',
+      confirm: confirmRef?.current?.value ?? '',
+      gender: selectRef?.current?.value ?? '',
+      accept: checkboxRef?.current?.value ?? '',
       image: imageBase64,
-      country: countryRef?.current?.value
+      country: countryRef?.current?.value ?? ''
     };
-    const error = {};
+    const error: ErrorMessage = {};
     try {
       await schema.validate(formData, {abortEarly: false});
     } catch (err) {
-      err.inner.forEach(e => {
-       error[e.path] = e.message;
+      (err as ValidationError).inner.forEach(({ message, path }) => {
+        if (path) {
+          error[path as keyof ErrorMessage] = message;
+        }
       });
       setErrorMessages(error);
     }
@@ -106,7 +109,7 @@ export default function Uncontrolled() {
       <div className="input-block">
         <div className="flex-row">
           <label htmlFor="age" className="label">Age: </label>
-          <input className="input" ref={ageRef} id="age" type="text" />
+          <input className="input" ref={ageRef} id="age" type="number" />
         </div>
         <div className="red">{errorMessages?.age}</div>
       </div>

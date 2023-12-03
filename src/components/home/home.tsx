@@ -29,8 +29,8 @@ function Home() {
     useEffect(() => {
       fetch('https://countriesnow.space/api/v0.1/countries')
         .then((response) => response.json())
-        .then((dataList) => {
-          const countryList = dataList.data.map(item => item.country).filter(item => item !== 'Jordan' && item !== 'Myanmar');
+        .then((dataList: { data: { country: string }[] }) => {
+          const countryList = dataList.data.map((item ) => item.country).filter(item => item !== 'Jordan' && item !== 'Myanmar');
           dispatch(saveCountries(countryList));
         });
     }, []);
